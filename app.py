@@ -90,9 +90,16 @@ class ImprovedQuantityPredictor(torch.nn.Module):
 def load_model():
     device = torch.device('cpu')
     model = ImprovedQuantityPredictor()
-    model.load_state_dict(torch.load("quantity_model.pth", map_location=device))
+    # Disable weights_only to load full checkpoint safely (trust your file!)
+    checkpoint = torch.load("quantity_model.pth", map_location=device, weights_only=False)
+    # Extract weights if saved as state_dict or checkpoint dict
+    if 'model_state_dict' in checkpoint:
+        model.load_state_dict(checkpoint['model_state_dict'])
+    else:
+        model.load_state_dict(checkpoint)
     model.eval()
     return model
+
 model = load_model()
 transform = transforms.Compose([
     transforms.Resize((416, 416)),
@@ -150,4 +157,5 @@ st.markdown("""
     <b>Assignment Demo</b> | Model: ResNet-style Regression | Streamlit UI | Batch prediction & confidence
     </div>
     """, unsafe_allow_html=True)
+
 
