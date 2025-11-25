@@ -5,6 +5,27 @@ import numpy as np
 from PIL import Image
 import io
 
+import os
+import requests
+
+def download_model_from_gdrive(file_id, destination):
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(destination, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        print(f"Downloaded model to {destination}")
+    else:
+        raise Exception("Failed to download model from Google Drive.")
+
+model_path = "quantity_model.pth"
+gdrive_file_id = "1gUZbrrdW7KEY-oVfagK8GszUdcgXSq_i"
+
+if not os.path.exists(model_path):
+    download_model_from_gdrive(gdrive_file_id, model_path)
+
 # ----- Model definition (same as before) -----
 class ResidualBlock(torch.nn.Module):
     def __init__(self, in_channels, out_channels, stride=1):
@@ -129,3 +150,4 @@ st.markdown("""
     <b>Assignment Demo</b> | Model: ResNet-style Regression | Streamlit UI | Batch prediction & confidence
     </div>
     """, unsafe_allow_html=True)
+
