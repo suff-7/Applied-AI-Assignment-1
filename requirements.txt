@@ -3,3 +3,4 @@ torch
 torchvision
 requests
 pillow
+gdown
